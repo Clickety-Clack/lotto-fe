@@ -12,7 +12,7 @@
               <router-link
                 :to="{
                   name: 'Lottery',
-                  params: {lotteryAddress: lotteryAddress, endAt: endAt}
+                  params: {lotteryAddress: lotteryAddress}
                 }"
                 class="btn btn-primary"
               >

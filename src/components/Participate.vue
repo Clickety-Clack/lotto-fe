@@ -28,9 +28,9 @@
             <div v-if="error" class="alert alert-danger voffset2" role="alert">
               {{error}}
             </div>
-            <div v-if="showProgress" class="progress voffset2">
+            <div v-if="showProgress" class="progress voffset2 mt-3">
               <div
-                class="progress-bar progress-bar-striped progress-bar-animated mt-3"
+                class="progress-bar progress-bar-striped progress-bar-animated"
                 aria-valuemin="0"
                 aria-valuemax="100"
                 :style="{'width': '100%'}"

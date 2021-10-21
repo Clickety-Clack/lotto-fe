@@ -58,7 +58,7 @@ export default {
   data() {
     return {
       lotteryAddress: this.$route.params.lotteryAddress,
-      endAt: this.$route.params.endAt,
+      endAt: "",
       winner: {},
       accounts: [],
       isLotteryLive: false,
@@ -125,6 +125,12 @@ export default {
       .call()
       .then(managerName => {
         this.lotteryManager = managerName;
+      });
+    Lottery.methods
+      .deadline()
+      .call()
+      .then(deadline => {
+        this.endAt = deadline;
       });
   },
   destroyed() {
