@@ -33,7 +33,6 @@
         :isLotteryLive="isLotteryLive"
         :changeLotteryStatus="changeLotteryStatus"
         :updateWinner="updateWinner"
-        :createdAt="createdAt"
       ></manager-lottery>
     </div>
   </div>
@@ -59,7 +58,7 @@ export default {
   data() {
     return {
       lotteryAddress: this.$route.params.lotteryAddress,
-      createdAt: this.$route.params.createdAt,
+      endAt: this.$route.params.endAt,
       winner: {},
       accounts: [],
       isLotteryLive: false,
@@ -77,8 +76,7 @@ export default {
   methods: {
     getCurrentTime () {
       var currentDate = new Date();
-      var endDate = new Date(this.createdAt);
-      endDate.setMinutes(endDate.getMinutes() + 5);
+      var endDate = new Date(this.endAt);
       var diff = endDate.getTime() - currentDate.getTime();
       if (diff <= 0) {
         this.remainTime = "End";

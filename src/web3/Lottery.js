@@ -3,7 +3,7 @@ import lotteryJson from '../contract/Lottery.json'
 
 var lottery;
 if (web3) {
-    lottery = new web3.eth.Contract(JSON.parse(lotteryJson.interface));
+    lottery = new web3.eth.Contract(lotteryJson.abi);
 }
 
 export default lottery;

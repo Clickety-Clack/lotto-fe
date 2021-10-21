@@ -39,7 +39,6 @@
                     type="number"
                     class="form-control"
                     id="ethRequiredToParticipate"
-                    @keypress="isNumber($event)"
                     v-model="ethRequiredToParticipate"
                   >
                 </div>
@@ -99,7 +98,6 @@ export default {
     "accounts",
     "changeLotteryStatus",
     "updateWinner",
-    "createdAt"
   ],
   data() {
     return {
@@ -112,7 +110,8 @@ export default {
       progress: 0,
       currentTime: null,
       remainTime: null,
-      timeCounter: null
+      timeCounter: null,
+      deadline: null,
     };
   },
   computed: {
@@ -129,8 +128,7 @@ export default {
     },
     getCurrentTime () {
       var currentDate = new Date();
-      var endDate = new Date(this.createdAt);
-      endDate.setMinutes(endDate.getMinutes() + 5);
+      var endDate = new Date(this.deadline);
       var diff = endDate.getTime() - currentDate.getTime();
       if (diff <= 0) {
         this.remainTime = "End";
@@ -150,7 +148,7 @@ export default {
       Lottery.methods
         .activateLottery(
           this.maxEntriesPerPlayer,
-          this.ethRequiredToParticipate
+          this.ethRequiredToParticipate,
         )
         .send({
           from: this.accounts[0],
@@ -161,11 +159,13 @@ export default {
         })
         .on("error", error => {
           console.log(error);
+          this.activeShowProgress = false;
           this.showError = true;
         })
         .then(reciept => {
           this.activeShowProgress = false;
           this.changeLotteryStatus(true);
+          this.timeCounter = setInterval(this.getCurrentTime, 1000);
         });
     },
 
@@ -182,6 +182,7 @@ export default {
         .on("error", error => {
           console.log(error);
           this.showError = true;
+          this.showProgress = false;
         })
         .then(reciept => {
           this.showProgress = false;
@@ -212,7 +213,16 @@ export default {
   },
   created() {
     Lottery.options.address = this.lotteryAddress;
-    this.timeCounter = setInterval(this.getCurrentTime, 1000);
+
+    Lottery.methods
+      .deadline()
+      .call()
+      .then(deadline => {
+        this.deadline = deadline;
+        if (this.isLotteryLive) {
+          this.timeCounter = setInterval(this.getCurrentTime, 1000);
+        }
+      });
   },
   destroyed() {
     clearInterval(this.timeCounter);

@@ -12,6 +12,24 @@
             v-model="lotteryName"
             required> 
         </div>
+        <div class="form-group">
+          <label for="endDateString">How long til winner is picked</label>
+          <input
+            type="datetime-local"
+            class="form-control"
+            id="endDateString"
+            v-model="endDateString"
+          >
+        </div>
+        <div class="form-group">
+          <label for="creatorFee">How much % of winning goes back to creator</label>
+          <input
+            type="number"
+            class="form-control"
+            id="creatorFee"
+            v-model="creatorFee"
+          >
+        </div>
         <button type="submit" class="btn btn-success">Create</button>
       </form>
       <div v-if="showError" class="alert alert-danger voffset2" role="alert">
@@ -42,18 +60,22 @@ export default {
       lotteryName: "",
       showError: false,
       isProgress: false,
+      endDate: null,
+      endDateString: null,
+      creatorFee: 0
     };
   },
   methods: {
     async createLottery() {
-      var currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = (currentDate.getMonth()+1).toString().padStart(2, '0');
-      const date = currentDate.getDate().toString().padStart(2, '0');
-      const time = currentDate.getHours().toString().padStart(2, '0') + ':' + currentDate.getMinutes().toString().padStart(2, '0') + ':' + currentDate.getSeconds().toString().padStart(2, '0');
+      this.endDate = new Date(this.endDateString);
+      const year = this.endDate.getFullYear();
+      const month = (this.endDate.getMonth()+1).toString().padStart(2, '0');
+      const date = this.endDate.getDate().toString().padStart(2, '0');
+      const time = this.endDate.getHours().toString().padStart(2, '0') + ':' + this.endDate.getMinutes().toString().padStart(2, '0') + ':' + this.endDate.getSeconds().toString().padStart(2, '0');
       const strDate = `${year}-${month}-${date} ${time}`;
+      console.log("createlottery: ", strDate);
       LotteryGenerator.methods
-        .createLottery(this.lotteryName, strDate)
+        .createLottery(this.lotteryName, strDate, this.creatorFee)
         .send({
           gas: 2000000,
           from: this.accounts[0]

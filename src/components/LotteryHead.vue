@@ -3,7 +3,6 @@
     <div class="card">
       <h6 class="card-header">{{lotteryName}}</h6>
       <div class="card-body">
-        <h6 class="card-title">{{'Created : ' + createdAt}}</h6>
         <h6 class="card-title">{{'End : ' + endAt}}</h6>
         <h6 class="card-title">{{'Total winnings size : ' + winningPrice}}</h6>
         <h6 class="card-title">{{'Average player size : ' + averagePrice}}</h6>
@@ -13,7 +12,7 @@
               <router-link
                 :to="{
                   name: 'Lottery',
-                  params: {lotteryAddress: lotteryAddress, createdAt: createdAt}
+                  params: {lotteryAddress: lotteryAddress, endAt: endAt}
                 }"
                 class="btn btn-primary"
               >
@@ -45,8 +44,7 @@ export default {
     return {
       lotteryName: "",
       lotteryManager: "",
-      createdAt: "Created Date",
-      endAt: "End Date",
+      endAt: "",
       isLotteryLive: false,
       winningPrice: 0,
       averagePrice: 0,
@@ -59,22 +57,8 @@ export default {
   },
   async created() {
     Lottery.options.address = this.lotteryAddress;
-
-    Lottery.methods
-      .getWinningPrice()
-      .call()
-      .then(result => {
-        this.winningPrice = web3.utils.fromWei(result, "ether");
-      });
-
     var playersAddresses = await Lottery.methods.getPlayers().call();
     var totalPlayers = playersAddresses.length;
-    if (totalPlayers != 0) {
-      this.averagePrice = playersAddresses / totalPlayers;
-      this.averagePrice = this.averagePrice.toFixed(2);
-    } else {
-      this.averagePrice = 0;
-    }
 
     Lottery.methods
       .lotteryName()
@@ -91,20 +75,10 @@ export default {
       });
 
     Lottery.methods
-      .createdAt()
+      .deadline()
       .call()
-      .then(createdAt => {
-        this.createdAt = createdAt;
-        var endDate = new Date(this.createdAt);
-        endDate.setMinutes(endDate.getMinutes() + 5);
-        const year = endDate.getFullYear();
-        const month = (endDate.getMonth()+1).toString().padStart(2, '0');
-        const date = endDate.getDate().toString().padStart(2, '0');
-        const hour = endDate.getHours().toString().padStart(2, '0');
-        const minute = endDate.getMinutes().toString().padStart(2, '0');
-        const second = endDate.getSeconds().toString().padStart(2, '0');
-        const strDate = `${year}-${month}-${date} ${hour}:${minute}:${second}`;
-        this.endAt = strDate;
+      .then(deadline => {
+        this.endAt = deadline;
       });
 
     Lottery.methods
@@ -112,6 +86,19 @@ export default {
       .call()
       .then(status => {
         this.isLotteryLive = status;
+      });
+
+    Lottery.methods
+      .getWinningPrice()
+      .call()
+      .then(result => {
+        this.winningPrice = web3.utils.fromWei(result, "ether");
+        if (totalPlayers != 0) {
+          this.averagePrice = this.winningPrice / totalPlayers;
+          this.averagePrice = this.averagePrice;
+        } else {
+          this.averagePrice = 0;
+        }
       });
   }
 };
