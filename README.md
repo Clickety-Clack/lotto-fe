@@ -1,8 +1,8 @@
-#Lottery
+# Lottery
 
-##To run the project
-###Install modules
+## To run the project
+### Install modules
 yarn
 
-###Run the project
+### Run the project
 yarn start
