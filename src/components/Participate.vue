@@ -96,13 +96,18 @@ export default {
         });
     }
   },
-  created() {
+  async created() {
     Lottery.options.address = this.lotteryAddress;
+    var isWei = await Lottery.methods.isWei().call();
     Lottery.methods
       .ethToParticipate()
       .call()
       .then(result => {
-        this.ethToParticipate = result;
+        if (isWei) {
+          this.ethToParticipate = result / (10**18);
+        } else {
+          this.ethToParticipate = result;
+        }
       });
     Lottery.methods
       .maxEntriesForPlayer()

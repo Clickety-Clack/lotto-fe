@@ -26,20 +26,23 @@
             <div class="row voffset4">
               <form style="margin: auto" @submit.prevent="activateLottery">
                 <div class="form-group">
-                  <label for="maxEntriesPerPlayer">Max Entries for a player</label>
+                  <label for="maxEntriesPerPlayer">Max Entries</label>
                   <input
                     class="form-control"
                     type="number"
                     id="maxEntriesPerPlayer"
-                    v-model="maxEntriesPerPlayer">
+                    v-model="maxEntriesPerPlayer"
+                    :min=1
+                    :max=5>
                 </div>
                 <div class="form-group">
-                  <label for="ethRequiredToParticipate">Amount of Ether required to participate</label>
+                  <label for="ethRequiredToParticipate">Ticket Cost</label>
                   <input
-                    type="number"
                     class="form-control"
                     id="ethRequiredToParticipate"
                     v-model="ethRequiredToParticipate"
+                    :min=1
+                    @keypress="isNumber($event)"
                   >
                 </div>
                 <button class="btn btn-success" type="submit">Activate</button>
@@ -101,15 +104,15 @@ export default {
   ],
   data() {
     return {
-      maxEntriesPerPlayer: 0,
-      ethRequiredToParticipate: 0,
+      maxEntriesPerPlayer: 1,
+      ethRequiredToParticipate: 1,
       showError: false,
       showProgress: false,
       deleteShowProgress: false,
       activeShowProgress: false,
       progress: 0,
       currentTime: null,
-      remainTime: null,
+      remainTime: "",
       timeCounter: null,
       deadline: null,
     };
@@ -129,6 +132,7 @@ export default {
     getCurrentTime () {
       var currentDate = new Date();
       var endDate = new Date(this.deadline);
+
       var diff = endDate.getTime() - currentDate.getTime();
       if (diff <= 0) {
         this.remainTime = "End";
@@ -145,10 +149,13 @@ export default {
     },
 
     activateLottery() {
+      this.ethRequiredToParticipate = parseFloat(this.ethRequiredToParticipate);
+      var isWei = this.ethRequiredToParticipate < 1;
       Lottery.methods
         .activateLottery(
           this.maxEntriesPerPlayer,
-          this.ethRequiredToParticipate,
+          isWei ? this.ethRequiredToParticipate * 10**18 : this.ethRequiredToParticipate,
+          isWei
         )
         .send({
           from: this.accounts[0],

@@ -13,13 +13,16 @@
             required> 
         </div>
         <div class="form-group">
-          <label for="endDateString">How long til winner is picked</label>
+          <label for="endDateString">How long till winner is picked</label>
           <input
             type="datetime-local"
             class="form-control"
             id="endDateString"
             v-model="endDateString"
           >
+          <div v-if="timeErr" class="alert alert-danger voffset2" role="alert">
+            Must be future time.
+          </div>
         </div>
         <div class="form-group">
           <label for="creatorFee">How much % of winning goes back to creator</label>
@@ -62,36 +65,39 @@ export default {
       isProgress: false,
       endDate: null,
       endDateString: null,
-      creatorFee: 0
+      creatorFee: 0,
+      timeErr: false
     };
   },
   methods: {
     async createLottery() {
       this.endDate = new Date(this.endDateString);
-      const year = this.endDate.getFullYear();
-      const month = (this.endDate.getMonth()+1).toString().padStart(2, '0');
-      const date = this.endDate.getDate().toString().padStart(2, '0');
-      const time = this.endDate.getHours().toString().padStart(2, '0') + ':' + this.endDate.getMinutes().toString().padStart(2, '0') + ':' + this.endDate.getSeconds().toString().padStart(2, '0');
-      const strDate = `${year}-${month}-${date} ${time}`;
-      console.log("createlottery: ", strDate);
-      LotteryGenerator.methods
-        .createLottery(this.lotteryName, strDate, this.creatorFee)
-        .send({
-          gas: 2000000,
-          from: this.accounts[0]
-        })
-        .once('transactionHash', (hash)=> {
-          this.isProgress = true;
-        })
-        .on('error', (error)=>{
-          console.log(error);
-          this.showError = true
-          this.isProgress = false;
-        })
-        .then((reciept) => {
-          this.isProgress = false;
-          this.lotteryCreated(reciept.events.LotteryCreated.returnValues.lotteryAddress)
-        });
+      this.timeErr = this.endDate.getTime() < new Date().getTime();
+      if (!this.timeErr) {
+        const year = this.endDate.getFullYear();
+        const month = (this.endDate.getMonth()+1).toString().padStart(2, '0');
+        const date = this.endDate.getDate().toString().padStart(2, '0');
+        const time = this.endDate.getHours().toString().padStart(2, '0') + ':' + this.endDate.getMinutes().toString().padStart(2, '0') + ':' + this.endDate.getSeconds().toString().padStart(2, '0');
+        const strDate = `${year}-${month}-${date} ${time}`;
+        LotteryGenerator.methods
+          .createLottery(this.lotteryName, strDate, this.creatorFee)
+          .send({
+            gas: 2000000,
+            from: this.accounts[0]
+          })
+          .once('transactionHash', (hash)=> {
+            this.isProgress = true;
+          })
+          .on('error', (error)=>{
+            console.log(error);
+            this.showError = true
+            this.isProgress = false;
+          })
+          .then((reciept) => {
+            this.isProgress = false;
+            this.lotteryCreated(reciept.events.LotteryCreated.returnValues.lotteryAddress)
+          });
+        }
     }
   },
   mounted() {

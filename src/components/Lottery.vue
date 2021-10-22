@@ -64,7 +64,7 @@ export default {
       isLotteryLive: false,
       lotteryManager: "",
       currentTime: null,
-      remainTime: null,
+      remainTime: "Calculating...",
       timeCounter: null
     };
   },

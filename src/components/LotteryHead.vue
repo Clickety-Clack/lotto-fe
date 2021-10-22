@@ -57,8 +57,6 @@ export default {
   },
   async created() {
     Lottery.options.address = this.lotteryAddress;
-    var playersAddresses = await Lottery.methods.getPlayers().call();
-    var totalPlayers = playersAddresses.length;
 
     Lottery.methods
       .lotteryName()
@@ -88,6 +86,9 @@ export default {
         this.isLotteryLive = status;
       });
 
+
+    var playersAddresses = await Lottery.methods.getPlayers().call();
+    var totalPlayers = playersAddresses.length;
     Lottery.methods
       .getWinningPrice()
       .call()
