@@ -151,10 +151,12 @@ export default {
     activateLottery() {
       this.ethRequiredToParticipate = parseFloat(this.ethRequiredToParticipate);
       var isWei = this.ethRequiredToParticipate < 1;
+      var amount = isWei ? this.ethRequiredToParticipate * 10**18 : this.ethRequiredToParticipate;
+      var amount = "0x" + amount.toString(16);
       Lottery.methods
         .activateLottery(
           this.maxEntriesPerPlayer,
-          isWei ? this.ethRequiredToParticipate * 10**18 : this.ethRequiredToParticipate,
+          amount,
           isWei
         )
         .send({

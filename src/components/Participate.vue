@@ -70,12 +70,16 @@ export default {
         this.error = "You have reached participation limit";
         return;
       }
+      this.ethToParticipate = parseFloat(this.ethToParticipate);
+      var isWei = this.ethToParticipate < 1;
+      var amountWei = isWei ? this.ethToParticipate * 10**18 : this.ethToParticipate;
+      var amountWei = "0x" + amountWei.toString(16);
       Lottery.methods
         .participate(this.playerName)
         .send({
           from: this.accounts[0],
           gas: "1000000",
-          value: web3.utils.toWei(this.ethToParticipate, "ether")
+          value: amountWei
         })
         .once("transactionHash", hash => {
           this.showProgress = true;
