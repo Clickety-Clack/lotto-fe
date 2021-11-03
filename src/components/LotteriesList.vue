@@ -1,20 +1,25 @@
 <template>
     <div>
-      <div class="row">
-        <div class="col-md-4 offset-md-4">
-          <create-lottery
-            :accounts="accounts"
-            :lotteryCreated="lotteryCreated"
-          ></create-lottery>
-        </div>
+      <div class="alert alert-danger" v-if="chainId != 7341">
+        Connect to Shyft network!
       </div>
-      <div class="row voffset3">
-        <lottery-head
-          v-for="address in lotteries"
-          :key="address"
-          :lotteryAddress="address"
-          :accounts="accounts"
-        ></lottery-head>
+      <div v-if="chainId == 7341">
+        <div class="row">
+          <div class="col-md-4 offset-md-4">
+            <create-lottery
+              :accounts="accounts"
+              :lotteryCreated="lotteryCreated"
+            ></create-lottery>
+          </div>
+        </div>
+        <div class="row voffset3">
+          <lottery-head
+            v-for="address in lotteries"
+            :key="address"
+            :lotteryAddress="address"
+            :accounts="accounts"
+          ></lottery-head>
+        </div>
       </div>
     </div>
 </template>
@@ -30,7 +35,8 @@ export default {
   data: function() {
     return {
       lotteries: [],
-      accounts: []
+      accounts: [],
+      chainId: 0,
     };
   },
   methods: {
@@ -43,9 +49,21 @@ export default {
     CreateLottery
   },
   async created() {
-    this.lotteries = await LotteryGenerator.methods.getLotteries().call();
-    web3.eth.getAccounts().then(metaMaskAccounts => {
-      this.accounts = metaMaskAccounts;
+    this.chainId = await web3.eth.getChainId();
+    if (this.chainId == 7341) {
+      this.lotteries = await LotteryGenerator.methods.getLotteries().call();
+      web3.eth.getAccounts().then(metaMaskAccounts => {
+        this.accounts = metaMaskAccounts;
+      });
+    }
+    web3.currentProvider.on("chainChanged", async (chainid) => {
+      this.chainId = chainid;
+      if (this.chainId == 7341) {
+        this.lotteries = await LotteryGenerator.methods.getLotteries().call();
+        web3.eth.getAccounts().then(metaMaskAccounts => {
+          this.accounts = metaMaskAccounts;
+        });
+      }
     });
   }
 };

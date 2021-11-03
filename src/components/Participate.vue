@@ -4,7 +4,7 @@
       <div class="card">
         <h5 class="card-header">Participate - Max ({{maxEntriesForPlayer}})</h5>
         <div class="card-body">
-          <p>Current winning price: {{currentWinningPrice}} eth</p>
+          <p>Current winning price: {{currentWinningPrice}} SHFT</p>
           <form @submit.prevent="participate">
             <div class="form-group">
               <input
@@ -16,7 +16,7 @@
                 required>
             </div>
             <div class="form-group">
-              <label for="ethToParticipate">Ether required to participate</label>
+              <label for="ethToParticipate">SHFT required to participate</label>
               <input
                 type="text"
                 class="form-control"
