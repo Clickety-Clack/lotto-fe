@@ -16,12 +16,12 @@
                 required>
             </div>
             <div class="form-group">
-              <label for="ethToParticipate">SHFT required to participate</label>
+              <label for="coinsRequired">SHFT required to participate</label>
               <input
                 type="text"
                 class="form-control"
-                id="ethToParticipate"
-                v-model="ethToParticipate"
+                id="coinsRequired"
+                v-model="coinsRequired"
                 disabled>
             </div>
             <button type="submit" class="btn btn-primary">Participate</button>
@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       currentWinningPrice: 0,
-      ethToParticipate: 0,
+      coinsRequired: 0,
       maxEntriesForPlayer: 0,
       player: {},
       playerName: "",
@@ -70,9 +70,9 @@ export default {
         this.error = "You have reached participation limit";
         return;
       }
-      this.ethToParticipate = parseFloat(this.ethToParticipate);
-      var isWei = this.ethToParticipate < 1;
-      var amountWei = isWei ? this.ethToParticipate * 10**18 : this.ethToParticipate;
+      this.coinsRequired = parseFloat(this.coinsRequired);
+      var isWei = this.coinsRequired < 1;
+      var amountWei = isWei ? this.coinsRequired * 10**18 : this.coinsRequired;
       var amountWei = "0x" + amountWei.toString(16);
       Lottery.methods
         .participate(this.playerName)
@@ -95,7 +95,7 @@ export default {
             "playerParticipated",
             reciept.events.PlayerParticipated.returnValues
           );
-          this.currentWinningPrice = parseFloat(this.ethToParticipate) + parseFloat(this.currentWinningPrice);
+          this.currentWinningPrice = parseFloat(this.coinsRequired) + parseFloat(this.currentWinningPrice);
           this.showProgress = false;
         });
     }
@@ -104,13 +104,13 @@ export default {
     Lottery.options.address = this.lotteryAddress;
     var isWei = await Lottery.methods.isWei().call();
     Lottery.methods
-      .ethToParticipate()
+      .coinsRequired()
       .call()
       .then(result => {
         if (isWei) {
-          this.ethToParticipate = result / (10**18);
+          this.coinsRequired = result / (10**18);
         } else {
-          this.ethToParticipate = result;
+          this.coinsRequired = result;
         }
       });
     Lottery.methods

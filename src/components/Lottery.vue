@@ -61,7 +61,7 @@ export default {
       endAt: "",
       winner: {},
       accounts: [],
-      isLotteryLive: false,
+      isLotteryLive: true,
       lotteryManager: "",
       currentTime: null,
       remainTime: "Calculating...",
@@ -117,7 +117,7 @@ export default {
       .isLotteryLive()
       .call()
       .then(status => {
-        this.isLotteryLive = status;
+        changeLotteryStatus(status);
       });
 
     Lottery.methods
@@ -127,7 +127,7 @@ export default {
         this.lotteryManager = managerName;
       });
     Lottery.methods
-      .deadline()
+      .endAt()
       .call()
       .then(deadline => {
         this.endAt = deadline;

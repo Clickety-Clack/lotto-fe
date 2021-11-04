@@ -23,31 +23,6 @@
                 Delete Lottery
               </button>
             </div>
-            <div class="row voffset4">
-              <form style="margin: auto" @submit.prevent="activateLottery">
-                <div class="form-group">
-                  <label for="maxEntriesPerPlayer">Max Entries</label>
-                  <input
-                    class="form-control"
-                    type="number"
-                    id="maxEntriesPerPlayer"
-                    v-model="maxEntriesPerPlayer"
-                    :min=1
-                    :max=5>
-                </div>
-                <div class="form-group">
-                  <label for="ethRequiredToParticipate">Ticket Cost</label>
-                  <input
-                    class="form-control"
-                    id="ethRequiredToParticipate"
-                    v-model="ethRequiredToParticipate"
-                    :min=1
-                    @keypress="isNumber($event)"
-                  >
-                </div>
-                <button class="btn btn-success" type="submit">Activate</button>
-              </form>
-            </div>
           </div>
           <div v-if="showError" class="alert alert-danger voffset2" role="alert">
             There was an error while making transaction. Try again later.
@@ -73,15 +48,6 @@
               :style="{'width': '100%'}"
             >
               Deleting lottery...
-            </div>
-            <div
-              v-if="activeShowProgress"
-              class="progress-bar progress-bar-striped progress-bar-animated"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              :style="{'width': '100%'}"
-            >
-              Activating lottery...
             </div>
           </div>
         </div>
@@ -148,36 +114,6 @@ export default {
       }
     },
 
-    activateLottery() {
-      this.ethRequiredToParticipate = parseFloat(this.ethRequiredToParticipate);
-      var isWei = this.ethRequiredToParticipate < 1;
-      var amount = isWei ? this.ethRequiredToParticipate * 10**18 : this.ethRequiredToParticipate;
-      var amount = "0x" + amount.toString(16);
-      Lottery.methods
-        .activateLottery(
-          this.maxEntriesPerPlayer,
-          amount,
-          isWei
-        )
-        .send({
-          from: this.accounts[0],
-          gas: 2000000
-        })
-        .once("transactionHash", hash => {
-          this.activeShowProgress = true;
-        })
-        .on("error", error => {
-          console.log(error);
-          this.activeShowProgress = false;
-          this.showError = true;
-        })
-        .then(reciept => {
-          this.activeShowProgress = false;
-          this.changeLotteryStatus(true);
-          this.timeCounter = setInterval(this.getCurrentTime, 1000);
-        });
-    },
-
     declareWinner() {
       Lottery.methods
         .declareWinner()
@@ -224,10 +160,10 @@ export default {
     Lottery.options.address = this.lotteryAddress;
 
     Lottery.methods
-      .deadline()
+      .endAt()
       .call()
-      .then(deadline => {
-        this.deadline = deadline;
+      .then(result => {
+        this.deadline = result;
         if (this.isLotteryLive) {
           this.timeCounter = setInterval(this.getCurrentTime, 1000);
         }

@@ -3,7 +3,6 @@ import Router from 'vue-router'
 
 import LotteriesList from '../components/LotteriesList';
 import Lottery from '../components/Lottery';
-
 Vue.use(Router)
 
 export default new Router({

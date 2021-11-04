@@ -4,6 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import { BootstrapVue, IconsPlugin, TablePlugin } from 'bootstrap-vue';
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
@@ -16,3 +18,6 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+Vue.use(BootstrapVue)
+Vue.use(IconsPlugin)
+Vue.use(TablePlugin)

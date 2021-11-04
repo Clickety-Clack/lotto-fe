@@ -2,35 +2,54 @@
   <div class="card">
     <div class="card-body">
       <form @submit.prevent="createLottery">
-        <div class="form-group">
-          <label for="lotteryName">Create a Lottery</label>
+        <div class="form-group d-flex align-items-center">
+          <label class="col-md-6 text-right" for="valueName">{{labelName}}</label>
           <input
             type="text"
             class="form-control"
-            id="lotteryName"
-            placeholder="Enter Lottery name"
-            v-model="lotteryName"
+            id="valueName"
+            v-model="valueName"
             required> 
         </div>
-        <div class="form-group">
-          <label for="endDateString">How long till winner is picked</label>
+        <div class="form-group d-flex align-items-center">
+          <label class="col-md-6 text-right" for="valueEnd">{{labelEnd}}</label>
           <input
             type="datetime-local"
             class="form-control"
-            id="endDateString"
-            v-model="endDateString"
+            id="valueEnd"
+            v-model="valueEnd"
           >
           <div v-if="timeErr" class="alert alert-danger voffset2" role="alert">
             Must be future time.
           </div>
         </div>
-        <div class="form-group">
-          <label for="creatorFee">How much % of winning goes back to creator</label>
+        <div class="form-group d-flex align-items-center">
+          <label class="col-md-6 text-right" for="valueFee">{{labelFee}}</label>
           <input
             type="number"
             class="form-control"
-            id="creatorFee"
-            v-model="creatorFee"
+            id="valueFee"
+            v-model="valueFee"
+          >
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="col-md-6 text-right" for="valueMax">{{labelMax}}</label>
+          <input
+            class="form-control"
+            type="number"
+            id="valueMax"
+            v-model="valueMax"
+            :min=1
+            :max=5>
+        </div>
+        <div class="form-group d-flex align-items-center">
+          <label class="col-md-6 text-right" for="valueCost">{{labelCost}}</label>
+          <input
+            class="form-control"
+            id="valueCost"
+            v-model="valueCost"
+            :min=1
+            @keypress="isNumber($event)"
           >
         </div>
         <button type="submit" class="btn btn-success">Create</button>
@@ -55,32 +74,54 @@
 <script>
 import web3 from "../web3/web3";
 import LotteryGenerator from "../web3/LotteryGenerator";
+import {labels} from "../config";
 
 export default {
   props: ["lotteryCreated", "accounts"],
   data: function() {
     return {
+      labelName: labels.labelName,
+      labelEnd: labels.labelEnd,
+      labelFee: labels.labelFee,
+      labelMax: labels.labelMax,
+      labelCost: labels.labelCost,
+      valueName: "",
+      valueEnd: "",
+      valueFee: "",
+      valueMax: "",
+      valueCost: "",
       lotteryName: "",
       showError: false,
       isProgress: false,
-      endDate: null,
-      endDateString: null,
-      creatorFee: 0,
       timeErr: false
     };
   },
   methods: {
+    isNumber: function(evt) {
+      evt = (evt) ? evt : window.event;
+      var charCode = (evt.which) ? evt.which : evt.keyCode;
+      if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+        evt.preventDefault();;
+      } else {
+        return true;
+      }
+    },
+    dateToStr: function(prop) {
+      const year = prop.getFullYear();
+      const month = (prop.getMonth()+1).toString().padStart(2, '0');
+      const date = prop.getDate().toString().padStart(2, '0');
+      const time = prop.getHours().toString().padStart(2, '0') + ':' + prop.getMinutes().toString().padStart(2, '0') + ':' + prop.getSeconds().toString().padStart(2, '0');
+      const str = `${year}-${month}-${date} ${time}`;
+      return str;
+    },
+    isValidDeadline: function(prop) {
+      return new Date(prop).getTime() > new Date().getTime();
+    },
     async createLottery() {
-      this.endDate = new Date(this.endDateString);
-      this.timeErr = this.endDate.getTime() < new Date().getTime();
+      this.timeErr = !this.isValidDeadline(this.valueEnd);
       if (!this.timeErr) {
-        const year = this.endDate.getFullYear();
-        const month = (this.endDate.getMonth()+1).toString().padStart(2, '0');
-        const date = this.endDate.getDate().toString().padStart(2, '0');
-        const time = this.endDate.getHours().toString().padStart(2, '0') + ':' + this.endDate.getMinutes().toString().padStart(2, '0') + ':' + this.endDate.getSeconds().toString().padStart(2, '0');
-        const strDate = `${year}-${month}-${date} ${time}`;
         LotteryGenerator.methods
-          .createLottery(this.lotteryName, strDate, this.creatorFee)
+          .createLottery(this.valueName,this.dateToStr(new Date(this.valueEnd)), this.valueFee, this.valueMax, parseFloat(this.valueCost))
           .send({
             gas: 2000000,
             from: this.accounts[0]
@@ -97,7 +138,8 @@ export default {
             this.isProgress = false;
             this.lotteryCreated(reciept.events.LotteryCreated.returnValues.lotteryAddress)
           });
-        }
+        LotteryGenerator.methods.setLotteryStatus(true).call();
+      }
     }
   },
   mounted() {

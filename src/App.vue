@@ -7,10 +7,10 @@
     <div v-show="!isMetaMaskLoggedin" class="alert alert-danger" role="alert">
       Please log into Metamask
     </div>
-    <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container" style="min-height: 74vh">
+    <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container" style="min-height: 70vh">
       <router-view/>
     </div>
-    <app-footer class="voffset3" style="position: fixed; bottom: 0"></app-footer>
+    <app-footer class="voffset3"></app-footer>
   </div>
 </template>
 

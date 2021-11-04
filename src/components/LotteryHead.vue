@@ -61,29 +61,29 @@ export default {
     Lottery.methods
       .lotteryName()
       .call()
-      .then(name => {
-        this.lotteryName = name;
+      .then(result => {
+        this.lotteryName = result;
       });
 
     Lottery.methods
       .manager()
       .call()
-      .then(managerAddress => {
-        this.lotteryManager = managerAddress;
+      .then(result => {
+        this.lotteryManager = result;
       });
 
     Lottery.methods
-      .deadline()
+      .endAt()
       .call()
-      .then(deadline => {
-        this.endAt = deadline;
+      .then(result => {
+        this.endAt = result;
       });
 
     Lottery.methods
       .isLotteryLive()
       .call()
-      .then(status => {
-        this.isLotteryLive = status;
+      .then(result => {
+        this.isLotteryLive = result;
       });
 
 
