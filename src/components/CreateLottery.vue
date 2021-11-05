@@ -121,7 +121,7 @@ export default {
       this.timeErr = !this.isValidDeadline(this.valueEnd);
       if (!this.timeErr) {
         LotteryGenerator.methods
-          .createLottery(this.valueName,this.dateToStr(new Date(this.valueEnd)), this.valueFee, this.valueMax, parseFloat(this.valueCost))
+          .createLottery(this.valueName, this.dateToStr(new Date(this.valueEnd)), this.valueFee, this.valueMax, parseFloat(this.valueCost))
           .send({
             gas: 2000000,
             from: this.accounts[0]
@@ -136,9 +136,8 @@ export default {
           })
           .then((reciept) => {
             this.isProgress = false;
-            this.lotteryCreated(reciept.events.LotteryCreated.returnValues.lotteryAddress)
+            this.lotteryCreated(reciept.events.LotteryCreated.returnValues.lotteryAddress);
           });
-        LotteryGenerator.methods.setLotteryStatus(true).call();
       }
     }
   },

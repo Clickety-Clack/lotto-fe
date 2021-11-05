@@ -5,6 +5,7 @@
       </div>
       <div v-if="chainId == 7341">
         <div class="row">
+          <!-- <div v-for="l in lotteryData" :key="l.id">{{l.name}}</div> -->
           <div class="col-md-10 offset-md-1">
             <create-lottery
               :accounts="accounts"
@@ -12,14 +13,6 @@
             ></create-lottery>
           </div>
         </div>
-        <!-- <div class="row voffset3">
-          <lottery-head
-            v-for="address in lotteries"
-            :key="address"
-            :lotteryAddress="address"
-            :accounts="accounts"
-          ></lottery-head>
-        </div> -->
         <div class="row voffset3">
           <b-table
             striped
@@ -50,7 +43,6 @@
 </template>
 
 <script>
-import LotteryHead from "./LotteryHead";
 import LotteryGenerator from "../web3/LotteryGenerator";
 import CreateLottery from "./CreateLottery";
 import Lottery from "../web3/Lottery";
@@ -63,6 +55,7 @@ export default {
       accounts: [],
       chainId: 0,
       filter: "",
+      isLottery: false,
       lotteryFields: [
         'index',
         { key: 'name', label: 'Name' },
@@ -76,40 +69,49 @@ export default {
     };
   },
   methods: {
-    lotteryCreated(lotteryAddress) {
+    async lotteryCreated(lotteryAddress) {
       this.lotteries.push(lotteryAddress);
+      this.addLottery(lotteryAddress);
     },
+    addLottery(lottery) {
+      Lottery.options.address = lottery;
+      var new_lottery = { name: "", end: "", fee: 0, entry: 0, amount: 0 };
+      Lottery.methods.lotteryName().call().then((result) => {
+        new_lottery.name = result;
+      });
+      Lottery.methods.endAt().call().then((result) => {
+        new_lottery.end = result;
+      });
+      Lottery.methods.creatorFee().call().then((result) => {
+        new_lottery.fee = result;
+      });
+      Lottery.methods.maxEntries().call().then((result) => {
+        new_lottery.entry = result;
+      });
+      Lottery.methods.coinsRequired().call().then((result) => {
+        new_lottery.amount = result;
+      });
+      this.lotteryData.push(new_lottery);
+    }
   },
   components: {
-    LotteryHead,
     CreateLottery,
   },
-  async created() {
-    this.chainId = await web3.eth.getChainId();
-    if (this.chainId == 7341) {
-      this.lotteries = await LotteryGenerator.methods.getLotteries().call();
-      web3.eth.getAccounts().then(metaMaskAccounts => {
-        this.accounts = metaMaskAccounts;
-      });
-      this.lotteries.forEach(async (lottery) => {
-        Lottery.options.address = lottery;
-        console.log(lottery);
-        var lottery_name = await Lottery.methods.lotteryName().call();
-        var lottery_end = await Lottery.methods.endAt().call();
-        var lottery_fee = await Lottery.methods.creatorFee().call();
-        var lottery_entry = await Lottery.methods.maxEntries().call();
-        var lottery_amount = await Lottery.methods.coinsRequired().call();
-        
-        var new_lottery = {
-          name: lottery_name,
-          end: lottery_end,
-          fee: lottery_fee,
-          entry: lottery_entry,
-          amount: lottery_amount
-        };
-        this.lotteryData.push(new_lottery);
-      })
-    }
+  created() {
+    web3.eth.getChainId().then((result => {
+      this.chainId = result;
+      if (this.chainId == 7341) {
+        LotteryGenerator.methods.getLotteries().call().then((result) => {
+          this.lotteries = result;
+          this.lotteries.forEach((lottery) => {
+            this.addLottery(lottery);
+          });
+        });
+        web3.eth.getAccounts().then(metaMaskAccounts => {
+          this.accounts = metaMaskAccounts;
+        });
+      }
+    }));
     web3.currentProvider.on("chainChanged", async (chainid) => {
       this.chainId = chainid;
       if (this.chainId == 7341) {

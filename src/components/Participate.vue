@@ -50,6 +50,7 @@ import { eventBus } from "../main";
 
 import web3 from "../web3/web3";
 import Lottery from "../web3/Lottery";
+import shftContract from "../web3/SHFTToken";
 
 export default {
   props: ["lotteryAddress", "accounts"],
@@ -65,21 +66,22 @@ export default {
     };
   },
   methods: {
-    participate() {
+    async participate() {
       if (this.maxEntriesForPlayer - this.player[1] <= 0) {
         this.error = "You have reached participation limit";
         return;
       }
       this.coinsRequired = parseFloat(this.coinsRequired);
-      var isWei = this.coinsRequired < 1;
-      var amountWei = isWei ? this.coinsRequired * 10**18 : this.coinsRequired;
-      var amountWei = "0x" + amountWei.toString(16);
+      // const decimal = await shftContract.methods.decimals().call();
+      // console.log(decimal);
+      // const amountDecimal = this.coinsRequired * 10**18;
+      // const amountHex = "0x" + amountDecimal.toString(16);
       Lottery.methods
         .participate(this.playerName)
         .send({
           from: this.accounts[0],
           gas: "1000000",
-          value: amountWei
+          value: this.coinsRequired*10**18
         })
         .once("transactionHash", hash => {
           this.showProgress = true;
@@ -102,19 +104,15 @@ export default {
   },
   async created() {
     Lottery.options.address = this.lotteryAddress;
-    var isWei = await Lottery.methods.isWei().call();
     Lottery.methods
       .coinsRequired()
       .call()
       .then(result => {
-        if (isWei) {
-          this.coinsRequired = result / (10**18);
-        } else {
-          this.coinsRequired = result;
-        }
+        this.coinsRequired = result;
+        console.log(this.coinsRequired, result);
       });
     Lottery.methods
-      .maxEntriesForPlayer()
+      .maxEntries()
       .call()
       .then(result => {
         this.maxEntriesForPlayer = result;
@@ -123,13 +121,14 @@ export default {
       .getWinningPrice()
       .call()
       .then(result => {
-        this.currentWinningPrice = web3.utils.fromWei(result, "ether");
+        this.currentWinningPrice = result;
       });
     Lottery.methods
       .getPlayer(this.accounts[0])
       .call()
       .then(player => {
         this.player = player;
+        console.log(player);
       });
   },
   mounted() {

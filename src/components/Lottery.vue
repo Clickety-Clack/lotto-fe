@@ -1,6 +1,6 @@
 <template>
 <div>
-  <div class="row">
+  <div class="row" v-if="accounts[0]">
     <div class="col-md-4 offset-md-4" v-if="winner.name">
       <div class="card">
         <h6 class="card-header">Last Winner is: {{winner.name}}</h6>
@@ -100,7 +100,10 @@ export default {
       this.winner = winner;
     }
   },
-  created() {
+  async created() {
+    console.log("===Lottery===");
+    this.accounts = await web3.eth.getAccounts();
+    console.log(this.accounts);
     this.timeCounter = setInterval(this.getCurrentTime, 1000);
     Lottery.options.address = this.lotteryAddress;
     Lottery.methods
@@ -109,15 +112,12 @@ export default {
       .then(result => {
         this.winner = result;
       });
-    web3.eth.getAccounts().then(metaMaskAccounts => {
-      this.accounts = metaMaskAccounts;
-    });
 
     Lottery.methods
       .isLotteryLive()
       .call()
       .then(status => {
-        changeLotteryStatus(status);
+        this.changeLotteryStatus(status);
       });
 
     Lottery.methods

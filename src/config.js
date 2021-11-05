@@ -1,5 +1,6 @@
 export default {
-    lotteryFactoryAddress: "0xFBc3e4C3F1B54ec4004a32BEC2755fFFf2F54ff3",
+    lotteryFactoryAddress: "0x213d5930d7dA23cb3db276868B36d92AfAa2339F",
+    SHFTTokenAddress: "0xb17C88bDA07D28B3838E0c1dE6a30eAfBCF52D85",
 }
 
 export const labels = {
