@@ -1,7 +1,7 @@
 <template>
     <div>
-      <div>
-        <div class="alert alert-danger" v-if="chainId != 7341">
+      <div v-if="chainId != 7341">
+        <div class="alert alert-danger">
           Connect to Shyft network!
         </div>
         <div>
