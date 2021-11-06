@@ -1,7 +1,28 @@
 <template>
     <div>
-      <div class="alert alert-danger" v-if="chainId != 7341">
-        Connect to Shyft network!
+      <div>
+        <div class="alert alert-danger" v-if="chainId != 7341">
+          Connect to Shyft network!
+        </div>
+        <div>
+          <h3>Please add shyft network to your metamask.</h3>
+          <p>
+            <b>Network Name</b>
+            Shyft Main
+          </p>
+          <p>
+            <b>New RPC URL</b>
+            https://rpc.shyft.network:64738
+          </p>
+          <p>
+            <b>Chain ID</b>
+            7341
+          </p>
+          <p>
+            <b>Currency Symbol(optional)</b>
+            SHFT
+          </p>
+        </div>
       </div>
       <div v-if="chainId == 7341">
         <div class="row">
