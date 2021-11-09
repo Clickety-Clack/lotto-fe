@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card">
-        <h5 class="card-header">Participate - Max ({{maxEntriesForPlayer}})</h5>
+        <h5 class="card-header">Buy Ticket</h5>
         <div class="card-body">
           <p>Current winning price: {{currentWinningPrice}} SHFT</p>
           <form @submit.prevent="participate">
@@ -24,7 +24,7 @@
                 v-model="coinsRequired"
                 disabled>
             </div>
-            <button type="submit" class="btn btn-primary">Participate</button>
+            <button type="submit" class="btn btn-primary">Buy</button>
             <div v-if="error" class="alert alert-danger voffset2" role="alert">
               {{error}}
             </div>
@@ -58,7 +58,6 @@ export default {
     return {
       currentWinningPrice: 0,
       coinsRequired: 0,
-      maxEntriesForPlayer: 0,
       player: {},
       playerName: "",
       error: null,
@@ -67,10 +66,6 @@ export default {
   },
   methods: {
     async participate() {
-      if (this.maxEntriesForPlayer - this.player[1] <= 0) {
-        this.error = "You have reached participation limit";
-        return;
-      }
       this.coinsRequired = parseFloat(this.coinsRequired);
       // const decimal = await shftContract.methods.decimals().call();
       // console.log(decimal);
@@ -109,26 +104,18 @@ export default {
       .call()
       .then(result => {
         this.coinsRequired = result;
-        console.log(this.coinsRequired, result);
-      });
-    Lottery.methods
-      .maxEntries()
-      .call()
-      .then(result => {
-        this.maxEntriesForPlayer = result;
       });
     Lottery.methods
       .getWinningPrice()
       .call()
       .then(result => {
-        this.currentWinningPrice = result;
+        this.currentWinningPrice = result/10**18;
       });
     Lottery.methods
       .getPlayer(this.accounts[0])
       .call()
       .then(player => {
         this.player = player;
-        console.log(player);
       });
   },
   mounted() {

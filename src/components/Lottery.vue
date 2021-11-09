@@ -25,7 +25,7 @@
       ></participate>
     </div>
   </div>
-  <div class="row voffset3" v-if="isManager()">
+  <div class="row voffset3" v-if="isManager() && !isLotteryLive">
     <div class="col-md-6 offset-md-3">
       <manager-lottery
         :lotteryAddress="lotteryAddress"

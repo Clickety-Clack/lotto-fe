@@ -4,16 +4,7 @@
       <div class="card">
         <h5 class="card-header">Manage Lottery</h5>
         <div class="card-body">
-          <div v-if="isLotteryLive">
-            <button
-              style="margin:auto"
-              class="btn btn-primary"
-              @click="declareWinner"
-            >
-              Declare winner
-            </button>
-          </div>
-          <div v-else>
+          <div v-if="!isLotteryLive">
             <div class="row">
               <button
                 style="margin:auto"

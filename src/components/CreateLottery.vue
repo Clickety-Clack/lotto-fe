@@ -33,16 +33,6 @@
           >
         </div>
         <div class="form-group d-flex align-items-center">
-          <label class="col-md-6 text-right" for="valueMax">{{labelMax}}</label>
-          <input
-            class="form-control"
-            type="number"
-            id="valueMax"
-            v-model="valueMax"
-            :min=1
-            :max=5>
-        </div>
-        <div class="form-group d-flex align-items-center">
           <label class="col-md-6 text-right" for="valueCost">{{labelCost}}</label>
           <input
             class="form-control"
@@ -83,12 +73,10 @@ export default {
       labelName: labels.labelName,
       labelEnd: labels.labelEnd,
       labelFee: labels.labelFee,
-      labelMax: labels.labelMax,
       labelCost: labels.labelCost,
       valueName: "",
       valueEnd: "",
       valueFee: "",
-      valueMax: "",
       valueCost: "",
       lotteryName: "",
       showError: false,
@@ -121,7 +109,7 @@ export default {
       this.timeErr = !this.isValidDeadline(this.valueEnd);
       if (!this.timeErr) {
         LotteryGenerator.methods
-          .createLottery(this.valueName, this.dateToStr(new Date(this.valueEnd)), this.valueFee, this.valueMax, parseFloat(this.valueCost))
+          .createLottery(this.valueName, this.dateToStr(new Date(this.valueEnd)), this.valueFee, parseFloat(this.valueCost))
           .send({
             gas: 2000000,
             from: this.accounts[0]

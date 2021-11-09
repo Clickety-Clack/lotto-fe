@@ -34,17 +34,28 @@
             ></create-lottery>
           </div>
         </div>
-        <div class="row voffset3">
+        <div class="row voffset3 text-left">
           <b-table
             striped
             hover
             outlined
+            sort-icon-left
+            head-variant="dark"
+            table-variant="secondary"
             :fields="lotteryFields"
             :items="lotteryData"
             :filter="filter"
+            :sort-by.sync="sortBy"
+            :sort-desc.sync="sortDesc"
           >
             <template #cell(index)="data">
               {{ data.index + 1 }}
+            </template>
+            <template #cell(amount)="data">
+              <span v-b-tooltip.hover :title=data.item.dollar>{{data.item.amount}}&nbsp;SHFT</span>
+            </template>
+            <template #cell(participants)="data">
+              <span v-b-tooltip.hover :title=data.item.participants><i class="fas fa-users"></i></span>
             </template>
             <template #cell(Detail)="data">
               <router-link
@@ -52,7 +63,6 @@
                   name: 'Lottery',
                   params: {lotteryAddress: lotteries[data.index]}
                 }"
-                class="btn btn-primary"
               >
                 Show
               </router-link>
@@ -75,15 +85,17 @@ export default {
       lotteries: [],
       accounts: [],
       chainId: 0,
+      sortBy: 'index',
+      sortDesc: false,
       filter: "",
       isLottery: false,
       lotteryFields: [
         'index',
-        { key: 'name', label: 'Name' },
-        { key: 'end', label: 'End' },
-        { key: 'fee', label: 'Fee' },
-        { key: 'entry', label: 'Entry' },
-        { key: 'amount', label: 'Amount' },
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'end', label: 'End', sortable: true },
+        { key: 'amount', label: 'Ticket Cost', sortable: true },
+        { key: 'potsize', label: 'Pot Size', sortable: true },
+        { key: 'participants', label: 'Participants', sortable: true },
         'Detail',
       ],
       lotteryData: [],
@@ -96,21 +108,26 @@ export default {
     },
     addLottery(lottery) {
       Lottery.options.address = lottery;
-      var new_lottery = { name: "", end: "", fee: 0, entry: 0, amount: 0 };
+      var new_lottery = { name: "", end: "", potsize: 0, amount: 0, participants: 0, dollar: 0 };
       Lottery.methods.lotteryName().call().then((result) => {
         new_lottery.name = result;
       });
       Lottery.methods.endAt().call().then((result) => {
         new_lottery.end = result;
       });
-      Lottery.methods.creatorFee().call().then((result) => {
-        new_lottery.fee = result;
-      });
-      Lottery.methods.maxEntries().call().then((result) => {
-        new_lottery.entry = result;
+      Lottery.methods.getWinningPrice().call().then((result) => {
+        new_lottery.potsize = result/10**18 + 'SHFT';
       });
       Lottery.methods.coinsRequired().call().then((result) => {
         new_lottery.amount = result;
+        new_lottery.dollar = result * 0.6499 + '$';
+      });
+      Lottery.methods.getPlayers().call().then((result) => {
+        if (result.length == 1) {
+          new_lottery.participants = result.length.toString() + ' participant';
+        } else {
+          new_lottery.participants = result.length.toString() + ' participants';
+        }
       });
       this.lotteryData.push(new_lottery);
     }
