@@ -1,11 +1,11 @@
 <template>
   <div class="row">
       <div class="col-md-12">
-          <div class="card">
+          <div class="card bg-dark text-white">
               <h5 class="card-header"> Participants ({{totalPlayers}})</h5>
               <div class="card-body">
-                <ul class="list-group">
-                    <li class="list-group-item" :key="address+''"
+                <ul class="list-group bg-secondary">
+                    <li class="list-group-item bg-secondary" :key="address+''"
                       v-for="(player, address) in players">{{player[0]}} ({{player[1]}})</li>
                 </ul>
               </div>

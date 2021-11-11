@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <app-header class="header"></app-header>
+    <!-- <app-header class="header"></app-header> -->
     <div v-show="!isMetaMaskPresent" class="alert alert-danger" role="alert">
       Meta mask is not detected
     </div>
     <div v-show="!isMetaMaskLoggedin" class="alert alert-danger" role="alert">
       Please log into Metamask
     </div>
-    <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container" style="min-height: 70vh">
+    <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container p-3" style="min-height: 70vh">
       <router-view/>
     </div>
-    <app-footer class="voffset3"></app-footer>
+    <!-- <app-footer class="voffset3"></app-footer> -->
   </div>
 </template>
 
@@ -55,6 +55,11 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  background-color: #333333;
+  min-height: 100vh;
+  background: linear-gradient(217deg, rgba(20,0,0,.9), rgba(255,0,0,0) 93.71%),
+              linear-gradient(127deg, rgba(0,20,0,.9), rgba(0,255,0,0) 93.71%),
+              linear-gradient(336deg, rgba(0,0,20,.9), rgba(0,0,255,0) 93.71%);
 }
 
 .voffset {

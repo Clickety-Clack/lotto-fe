@@ -2,8 +2,8 @@
 <div>
   <div class="row" v-if="accounts[0]">
     <div class="col-md-4 offset-md-4" v-if="winner.name">
-      <div class="card">
-        <h6 class="card-header">Last Winner is: {{winner.name}}</h6>
+      <div class="card bg-dark text-white">
+        <div class="card-header">Last Winner is: <h3>{{winner.name}}</h3></div>
       </div>
     </div>
     <div class="col-md-4 offset-md-4">
@@ -11,6 +11,14 @@
       <div class="alert alert-danger" v-if="!isDisabled">{{this.remainTime}}</div>
     </div>
   </div>
+  <router-link
+    :to="{
+      name: 'LotteriesList',
+    }"
+    class="m-4 text-white"
+  >
+    <h4>Back to list</h4>
+  </router-link>
   <div class="row voffset4" v-if="isLotteryLive">
     <div class="col-md-6">
       <participants
@@ -24,6 +32,21 @@
         :accounts="accounts"
       ></participate>
     </div>
+  </div>
+  <div class="row voffset4" v-if="isLotteryLive">
+    <div class="col-md-2" />
+    <div class="col-md-8">
+      <div
+        v-if="showProgress"
+        class="progress-bar progress-bar-striped progress-bar-animated"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        :style="{'width': '100%'}"
+      >
+        Choosing winner...
+      </div>
+    </div>
+    <div class="col-md-2" />
   </div>
   <div class="row voffset3" v-if="isManager() && !isLotteryLive">
     <div class="col-md-6 offset-md-3">
@@ -65,7 +88,8 @@ export default {
       lotteryManager: "",
       currentTime: null,
       remainTime: "Calculating...",
-      timeCounter: null
+      timeCounter: null,
+      showProgress: false
     };
   },
   computed: {
@@ -81,6 +105,13 @@ export default {
       if (diff <= 0) {
         this.remainTime = "End";
         clearInterval(this.timeCounter);
+        Lottery.methods.getPlayers().call().then((result) => {
+          if (result.length > 0) {
+            this.declareWinner();
+          } else {
+            this.changeLotteryStatus(false);
+          }
+        });
       } else {
         diff = diff / 1000;
         var diffH = Math.floor(diff / 3600);
@@ -98,12 +129,31 @@ export default {
     },
     updateWinner(winner) {
       this.winner = winner;
-    }
+    },
+    declareWinner() {
+      Lottery.methods
+        .declareWinner()
+        .send({
+          from: this.accounts[0],
+          gas: 200000
+        })
+        .once("transactionHash", hash => {
+          this.showProgress = true;
+        })
+        .on("error", error => {
+          console.log(error);
+          this.showError = true;
+          this.showProgress = false;
+        })
+        .then(reciept => {
+          this.showProgress = false;
+          this.changeLotteryStatus(false);
+          this.updateWinner(reciept.events.WinnerDeclared.returnValues);
+        });
+    },
   },
   async created() {
-    console.log("===Lottery===");
     this.accounts = await web3.eth.getAccounts();
-    console.log(this.accounts);
     this.timeCounter = setInterval(this.getCurrentTime, 1000);
     Lottery.options.address = this.lotteryAddress;
     Lottery.methods

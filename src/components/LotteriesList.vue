@@ -4,71 +4,93 @@
         <div class="alert alert-danger">
           Connect to Shyft network!
         </div>
-        <div>
-          <h3>Please add shyft network to your metamask.</h3>
-          <p>
-            <b>Network Name</b>
-            Shyft Main
-          </p>
-          <p>
-            <b>New RPC URL</b>
-            https://rpc.shyft.network:64738
-          </p>
-          <p>
-            <b>Chain ID</b>
-            7341
-          </p>
-          <p>
-            <b>Currency Symbol(optional)</b>
-            SHFT
-          </p>
+        <div class="card bg-dark text-secondary d-flex justify-content-center align-items-center">
+          <h3 class="text-white p-3">Connect to the Shyft Network to enter</h3>
+          <div class="text-left text-white">
+            <p>
+              <b>Network Name:&nbsp;</b>
+              <span>Shyft Main</span>
+              <input type="hidden" id="net" value="Shyft Main">
+              <button v-if="succeedCopy!='net'" type="button" class="btn btn-rounded btn-icon">
+                <i class="fa fa-copy" @click="copy('net')"></i>
+              </button>
+            </p>
+            <p>
+              <b>New RPC URL:&nbsp;</b>
+              <span>https://rpc.shyft.network:64738</span>
+              <input type="hidden" id="rpc" value="https://rpc.shyft.network:64738">
+              <button v-if="succeedCopy!='rpc'" type="button" class="btn btn-rounded btn-icon">
+                <i class="fa fa-copy" @click="copy('rpc')"></i>
+              </button>
+            </p>
+            <p>
+              <b>Chain ID:&nbsp;</b>
+              <span>7341</span>
+              <input type="hidden" id="chain" value="7341">
+              <button v-if="succeedCopy!='chain'" type="button" class="btn btn-rounded btn-icon">
+                <i class="fa fa-copy" @click="copy('chain')"></i>
+              </button>
+            </p>
+            <p>
+              <b>Currency Symbol(optional):&nbsp;</b>
+              <span>SHFT</span>
+              <input type="hidden" id="symbol" value="SHFT">
+              <button v-if="succeedCopy!='symbol'" type="button" class="btn btn-rounded btn-icon">
+                <i class="fa fa-copy" @click="copy('symbol')"></i>
+              </button>
+            </p>
+          </div>
         </div>
       </div>
       <div v-if="chainId == 7341">
         <div class="row">
           <!-- <div v-for="l in lotteryData" :key="l.id">{{l.name}}</div> -->
-          <div class="col-md-10 offset-md-1">
+          <div class="col-md-8 offset-md-2">
             <create-lottery
               :accounts="accounts"
               :lotteryCreated="lotteryCreated"
             ></create-lottery>
           </div>
         </div>
-        <div class="row voffset3 text-left">
+        <div v-if="!isLoading && lotteryData.length != 0" class="row voffset3 text-left">
           <b-table
             striped
             hover
-            outlined
             sort-icon-left
             head-variant="dark"
-            table-variant="secondary"
+            table-variant="dark"
             :fields="lotteryFields"
             :items="lotteryData"
             :filter="filter"
             :sort-by.sync="sortBy"
             :sort-desc.sync="sortDesc"
           >
-            <template #cell(index)="data">
-              {{ data.index + 1 }}
+            <template #cell(status)="data">
+              <div v-if="data.item.live" class="status status-green"></div>
+              <div v-else class="status status-red"></div>
             </template>
             <template #cell(amount)="data">
               <span v-b-tooltip.hover :title=data.item.dollar>{{data.item.amount}}&nbsp;SHFT</span>
             </template>
             <template #cell(participants)="data">
-              <span v-b-tooltip.hover :title=data.item.participants><i class="fas fa-users"></i></span>
+              {{data.item.participants}}
+              <!-- <span v-b-tooltip.hover :title=data.item.participants><i class="fas fa-users"></i></span> -->
             </template>
-            <template #cell(Detail)="data">
+            <template #cell(play)="data">
               <router-link
                 :to="{
                   name: 'Lottery',
                   params: {lotteryAddress: lotteries[data.index]}
                 }"
+                class="ml-3"
               >
-                Show
+                {{data.item.manager}}
               </router-link>
             </template>
           </b-table>
         </div>
+        <h3 v-if="lotteryData.length == 0" class="voffset5 text-white">No lottery</h3>
+        <div v-if="isLoading" class="row voffset3 text-center">Loading data...</div>
       </div>
     </div>
 </template>
@@ -90,44 +112,77 @@ export default {
       filter: "",
       isLottery: false,
       lotteryFields: [
-        'index',
+        { key: 'status', label: '' },
         { key: 'name', label: 'Name', sortable: true },
+        { key: 'play', label: '' },
+        { key: 'start', label: 'Created at', sortable: true },
         { key: 'end', label: 'End', sortable: true },
         { key: 'amount', label: 'Ticket Cost', sortable: true },
         { key: 'potsize', label: 'Pot Size', sortable: true },
+        { key: 'fee', label: 'Creator %', sortable: true },
         { key: 'participants', label: 'Participants', sortable: true },
-        'Detail',
       ],
       lotteryData: [],
+      succeedCopy: "",
+      isLoading: false,
     };
   },
   methods: {
+    copy(id) {
+      let textToCopy = document.querySelector(`#${id}`)
+      textToCopy.setAttribute('type', 'text')
+      textToCopy.select()
+
+      try {
+        document.execCommand('copy');
+        this.succeedCopy = id;
+      } catch (err) {
+      }
+      textToCopy.setAttribute('type', 'hidden')
+      window.getSelection().removeAllRanges();
+    },
     async lotteryCreated(lotteryAddress) {
       this.lotteries.push(lotteryAddress);
       this.addLottery(lotteryAddress);
     },
     addLottery(lottery) {
       Lottery.options.address = lottery;
-      var new_lottery = { name: "", end: "", potsize: 0, amount: 0, participants: 0, dollar: 0 };
+      var new_lottery = { name: "", start: "", end: "", potsize: 0, amount: 0, fee: 0, participants: 0, dollar: 0, manager: "", live: true };
       Lottery.methods.lotteryName().call().then((result) => {
         new_lottery.name = result;
+      });
+      Lottery.methods.createdAt().call().then((result) => {
+        new_lottery.start = result;
       });
       Lottery.methods.endAt().call().then((result) => {
         new_lottery.end = result;
       });
       Lottery.methods.getWinningPrice().call().then((result) => {
-        new_lottery.potsize = result/10**18 + 'SHFT';
+        new_lottery.potsize = result/10**18 + ' SHFT';
       });
       Lottery.methods.coinsRequired().call().then((result) => {
         new_lottery.amount = result;
         new_lottery.dollar = result * 0.6499 + '$';
       });
+      Lottery.methods.creatorFee().call().then((result) => {
+        new_lottery.fee = result + '%';
+      });
       Lottery.methods.getPlayers().call().then((result) => {
-        if (result.length == 1) {
+        if (result.length == 0 || result.length == 1) {
           new_lottery.participants = result.length.toString() + ' participant';
         } else {
           new_lottery.participants = result.length.toString() + ' participants';
         }
+      });
+      Lottery.methods.manager().call().then(result => {
+        if (result == this.accounts[0]) {
+          new_lottery.manager = "MANAGE";
+        } else {
+          new_lottery.manager = "PLAY";
+        }
+      });
+      Lottery.methods.isLotteryLive().call().then((result) => {
+        new_lottery.live = result;
       });
       this.lotteryData.push(new_lottery);
     }
@@ -141,9 +196,11 @@ export default {
       if (this.chainId == 7341) {
         LotteryGenerator.methods.getLotteries().call().then((result) => {
           this.lotteries = result;
+          this.isLoading = true;
           this.lotteries.forEach((lottery) => {
             this.addLottery(lottery);
           });
+          this.isLoading = false;
         });
         web3.eth.getAccounts().then(metaMaskAccounts => {
           this.accounts = metaMaskAccounts;
@@ -164,5 +221,35 @@ export default {
 </script>
 
 <style>
+.btn-icon {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  padding: 4px 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
+.btn-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-icon:active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.status {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+}
+
+.status-green {
+  background-color: green;
+}
+
+.status-red {
+  background-color: red;
+}
 </style>
