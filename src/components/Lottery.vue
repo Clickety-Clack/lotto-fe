@@ -8,13 +8,13 @@
   >
     <i class="fas fa-hand-point-left"></i>
   </router-link>
-  <div class="row" v-if="accounts[0]">
+  <div class="row mt-5" v-if="accounts[0]">
     <div class="col-md-4 offset-md-4" v-if="winner.name">
       <div class="card bg-dark text-white">
         <div class="card-header">Last Winner is: <h3>{{winner.name}}</h3></div>
       </div>
     </div>
-    <div class="col-md-4 offset-md-4">
+    <div class="col-md-6 offset-md-3">
       <div class="alert alert-danger" v-if="isDisabled">Close after: {{this.remainTime}}</div>
       <div class="alert alert-danger" v-if="!isDisabled">{{this.remainTime}}</div>
     </div>
@@ -31,6 +31,14 @@
         :lotteryAddress="lotteryAddress"
         :accounts="accounts"
       ></participate>
+    </div>
+  </div>
+  <div class="row voffset4" v-else>
+    <div class="col-md-6 offset-md-3">
+      <participants
+        :lotteryAddress="lotteryAddress"
+        :accounts="accounts"
+      ></participants>
     </div>
   </div>
   <div class="row voffset4" v-if="isLotteryLive">
@@ -84,7 +92,7 @@ export default {
       endAt: "",
       winner: {},
       accounts: [],
-      isLotteryLive: true,
+      isLotteryLive: false,
       lotteryManager: "",
       currentTime: null,
       remainTime: "Calculating...",
@@ -106,7 +114,7 @@ export default {
         this.remainTime = "End";
         clearInterval(this.timeCounter);
         Lottery.methods.getPlayers().call().then((result) => {
-          if (result.length > 0) {
+          if (result.length > 0 && this.isLotteryLive) {
             this.declareWinner();
           } else {
             this.changeLotteryStatus(false);

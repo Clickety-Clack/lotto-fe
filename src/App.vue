@@ -1,11 +1,15 @@
 <template>
   <div id="app">
     <!-- <app-header class="header"></app-header> -->
-    <div v-show="!isMetaMaskPresent" class="alert alert-danger" role="alert">
+    <div v-if="!isMetaMaskPresent" class="alert alert-danger err-msg" role="alert">
       Meta mask is not detected
+      <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en-US" target="_blank">
+        <button class="metamask-button">Add Metamaks</button>
+      </a>
     </div>
-    <div v-show="!isMetaMaskLoggedin" class="alert alert-danger" role="alert">
+    <div v-else-if="!isMetaMaskLoggedin" class="alert alert-danger err-msg" role="alert">
       Please log into Metamask
+      <button @click="handleLoginMetamask" class="metamask-button">Login Metamask</button>
     </div>
     <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container p-3" style="min-height: 70vh">
       <router-view/>
@@ -27,6 +31,11 @@ export default {
       isMetaMaskLoggedin: false,
     };
   },
+  methods: {
+    handleLoginMetamask() {
+      ethereum.request({ method: 'eth_requestAccounts' });
+    }
+  },
   async created() {
     this.isMetaMaskPresent = web3 ? true : false;
     try {
@@ -46,9 +55,39 @@ export default {
 </script>
 
 <style>
+.metamask-button {
+  background-color: transparent;
+  color: white;
+  border: 1px solid brown;
+  border-radius: 5px;
+  margin: 10px;
+  color: brown;
+  outline: none;
+  cursor: pointer;
+}
+
+.metamask-button:hover {
+  color: #aa4433;
+}
+
+.metamask-button:active {
+  color: #993333;
+}
+
 .header {
   margin-bottom: 15px;
 }
+
+.err-msg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  font-size: 20px;
+}
+
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -2,11 +2,12 @@
   <div class="row">
       <div class="col-md-12">
           <div class="card bg-dark text-white">
-              <h5 class="card-header"> Participants ({{totalPlayers}})</h5>
+              <h5 v-if="totalPlayers == 0 || totalPlayers == 1" class="card-header">{{totalPlayers}}&nbsp;Participant</h5>
+              <h5 v-else class="card-header">{{totalPlayers}}&nbsp;Participants</h5>
               <div class="card-body">
                 <ul class="list-group bg-secondary">
                     <li class="list-group-item bg-secondary" :key="address+''"
-                      v-for="(player, address) in players">{{player[0]}} ({{player[1]}})</li>
+                      v-for="(player, address) in players">{{player[0]}} ({{player[1]}} tickets)</li>
                 </ul>
               </div>
           </div>
@@ -42,7 +43,7 @@ export default {
     eventBus.$on("playerParticipated", result => {
       const player = {
         0: result.name,
-        1: result.entryCount
+        1: result.ticketCount
       };
       this.totalPlayers++;
       Vue.set(this.players, this.accounts[0], player);

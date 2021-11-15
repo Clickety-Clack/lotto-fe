@@ -74,7 +74,7 @@ export default {
       // const amountDecimal = this.coinsRequired * 10**18;
       // const amountHex = "0x" + amountDecimal.toString(16);
       Lottery.methods
-        .participate(this.playerName)
+        .participate(this.playerName, this.tickets)
         .send({
           from: this.accounts[0],
           gas: "1000000",

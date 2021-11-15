@@ -1,11 +1,9 @@
 <template>
-    <div>
-      <div v-if="chainId != 7341">
-        <div class="alert alert-danger">
-          Connect to Shyft network!
-        </div>
-        <div class="card bg-dark text-secondary d-flex justify-content-center align-items-center">
-          <h3 class="text-white p-3">Connect to the Shyft Network to enter</h3>
+    <div class="mt-5">
+      <div v-if="chainId != 7341" class="net-err-msg">
+        <div class="card bg-dark text-secondary d-flex justify-content-center align-items-center p-3">
+          <h3 class="text-white p-4">Connect to the Shyft Network to enter</h3>
+          <button @click="addshftnetwork" class="btn btn-primary mb-3">Switch Now</button>
           <div class="text-left text-white">
             <p>
               <b>Network Name:&nbsp;</b>
@@ -66,8 +64,14 @@
             :sort-desc.sync="sortDesc"
           >
             <template #cell(status)="data">
-              <div v-if="data.item.live" class="status status-green"></div>
-              <div v-else class="status status-red"></div>
+              <div v-if="data.item.live">
+                <div class="status status-green" />
+                <span>active</span>
+              </div>
+              <div v-else>
+                <div class="status status-red" />
+                <span>ended</span>
+              </div>
             </template>
             <template #cell(amount)="data">
               <span v-b-tooltip.hover :title=data.item.dollar>{{data.item.amount}}&nbsp;SHFT</span>
@@ -78,7 +82,7 @@
             </template>
             <template #cell(play)="data">
               <router-link
-                 v-if="data.item.live"
+                 v-if="data.item.live || data.item.manager=='MANAGE'"
                 :to="{
                   name: 'Lottery',
                   params: {lotteryAddress: lotteries[data.index]}
@@ -90,8 +94,8 @@
             </template>
           </b-table>
         </div>
-        <h3 v-if="lotteryData.length == 0" class="voffset5 text-white">No lottery</h3>
-        <div v-if="isLoading" class="row voffset3 text-center">Loading data...</div>
+        <h3 v-if="isLoading" class="voffset5 text-white">Loading data...</h3>
+        <h3 v-else-if="lotteryData.length == 0" class="voffset5 text-white">No lottery</h3>
       </div>
     </div>
 </template>
@@ -113,9 +117,9 @@ export default {
       filter: "",
       isLottery: false,
       lotteryFields: [
-        { key: 'status', label: '' },
         { key: 'name', label: 'Name', sortable: true },
         { key: 'play', label: '' },
+        { key: 'status', label: 'Status' },
         { key: 'start', label: 'Created at', sortable: true },
         { key: 'end', label: 'End', sortable: true },
         { key: 'amount', label: 'Ticket Cost', sortable: true },
@@ -125,10 +129,28 @@ export default {
       ],
       lotteryData: [],
       succeedCopy: "",
-      isLoading: false,
+      isLoading: true,
     };
   },
   methods: {
+    addshftnetwork () {
+      window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: '0x1CAD',
+          chainName: 'Shyft Mainnet',
+          nativeCurrency: {
+              name: 'Shyft Coin',
+              symbol: 'SHFT',
+              decimals: 18
+          },
+          rpcUrls: ['https://rpc.shyft.network:64738'],
+        }]
+      })
+      .catch((error) => {
+        console.log(error)
+      }) 
+    },
     copy(id) {
       let textToCopy = document.querySelector(`#${id}`)
       textToCopy.setAttribute('type', 'text')
@@ -158,8 +180,8 @@ export default {
       Lottery.methods.endAt().call().then((result) => {
         new_lottery.end = result;
       });
-      Lottery.methods.getWinningPrice().call().then((result) => {
-        new_lottery.potsize = result/10**18 + ' SHFT';
+      Lottery.methods.potSize().call().then((result) => {
+        new_lottery.potsize = result + ' SHFT';
       });
       Lottery.methods.coinsRequired().call().then((result) => {
         new_lottery.amount = result;
@@ -195,9 +217,9 @@ export default {
     web3.eth.getChainId().then((result => {
       this.chainId = result;
       if (this.chainId == 7341) {
+        this.isLoading = true;
         LotteryGenerator.methods.getLotteries().call().then((result) => {
           this.lotteries = result;
-          this.isLoading = true;
           this.lotteries.forEach((lottery) => {
             this.addLottery(lottery);
           });
@@ -244,6 +266,7 @@ export default {
   width: 10px;
   height: 10px;
   border-radius: 5px;
+  display: inline-block;
 }
 
 .status-green {
@@ -252,5 +275,12 @@ export default {
 
 .status-red {
   background-color: red;
+}
+
+.net-err-msg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>
