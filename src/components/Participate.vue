@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card bg-dark text-white">
-        <h5 class="card-header">Buy Ticket</h5>
+        <h5 class="card-header">Buy Ticket&nbsp;({{coinsRequired}}&nbsp;SHFT)</h5>
         <div class="card-body">
           <p>Current winning price: {{currentWinningPrice}} SHFT</p>
           <form @submit.prevent="participate">
@@ -24,15 +24,6 @@
                 placeholder="How many tickets?"
                 v-model="tickets"
                 required>
-            </div>
-            <div class="form-group">
-              <label for="coinsRequired">SHFT required to participate</label>
-              <input
-                type="text"
-                class="form-control"
-                id="coinsRequired"
-                v-model="coinsRequired"
-                disabled>
             </div>
             <button v-if="!showProgress" type="submit" class="btn btn-secondary px-4">Buy</button>
             <div v-if="error" class="alert alert-danger voffset2" role="alert">

@@ -78,6 +78,7 @@
             </template>
             <template #cell(play)="data">
               <router-link
+                 v-if="data.item.live"
                 :to="{
                   name: 'Lottery',
                   params: {lotteryAddress: lotteries[data.index]}
