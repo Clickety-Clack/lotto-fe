@@ -1,5 +1,5 @@
 export default {
-    lotteryFactoryAddress: "0x12317171808776637775dF2C17798c5cFbFd9D51",
+    lotteryFactoryAddress: "0x8754da39a17607D054A044BB2099050537240950",
     SHFTTokenAddress: "0xb17C88bDA07D28B3838E0c1dE6a30eAfBCF52D85",
 }
 
