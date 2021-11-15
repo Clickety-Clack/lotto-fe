@@ -1,5 +1,13 @@
 <template>
 <div>
+  <router-link
+    :to="{
+      name: 'LotteriesList',
+    }"
+    class="back-icon"
+  >
+    <i class="fas fa-hand-point-left"></i>
+  </router-link>
   <div class="row" v-if="accounts[0]">
     <div class="col-md-4 offset-md-4" v-if="winner.name">
       <div class="card bg-dark text-white">
@@ -11,14 +19,6 @@
       <div class="alert alert-danger" v-if="!isDisabled">{{this.remainTime}}</div>
     </div>
   </div>
-  <router-link
-    :to="{
-      name: 'LotteriesList',
-    }"
-    class="m-4 text-white"
-  >
-    <h4>Back to list</h4>
-  </router-link>
   <div class="row voffset4" v-if="isLotteryLive">
     <div class="col-md-6">
       <participants
@@ -192,5 +192,11 @@ export default {
 </script>
 
 <style>
-
+.back-icon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 30px;
+  color: white;
+}
 </style>
