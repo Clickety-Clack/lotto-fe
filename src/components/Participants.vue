@@ -29,6 +29,7 @@ export default {
     };
   },
   async created() {
+    Lottery.options.address = this.lotteryAddress;
     this.playersAddresses = await Lottery.methods.getPlayers().call();
     this.totalPlayers = this.playersAddresses.length;
     this.playersAddresses.forEach(playerAddress => {

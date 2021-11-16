@@ -11,11 +11,11 @@
   <div class="row mt-5" v-if="accounts[0]">
     <div class="col-md-4 offset-md-4" v-if="winner.name">
       <div class="card bg-dark text-white">
-        <div class="card-header">Last Winner is: <h3>{{winner.name}}</h3></div>
+        <div class="card-header">Winner<h3>{{winner.name}}</h3></div>
       </div>
     </div>
     <div class="col-md-6 offset-md-3">
-      <div class="alert alert-danger" v-if="isDisabled">Close after: {{this.remainTime}}</div>
+      <div class="alert alert-danger" v-if="isDisabled">Ending in: {{this.remainTime}}</div>
       <div class="alert alert-danger" v-if="!isDisabled">{{this.remainTime}}</div>
     </div>
   </div>
@@ -102,7 +102,7 @@ export default {
   },
   computed: {
   	isDisabled: function() {
-    	return this.remainTime != "End";
+    	return this.remainTime != "Ended";
     }
   },
   methods: {
@@ -111,7 +111,7 @@ export default {
       var endDate = new Date(this.endAt);
       var diff = endDate.getTime() - currentDate.getTime();
       if (diff <= 0) {
-        this.remainTime = "End";
+        this.remainTime = "Ended";
         clearInterval(this.timeCounter);
         Lottery.methods.getPlayers().call().then((result) => {
           if (result.length > 0 && this.isLotteryLive) {
@@ -120,12 +120,12 @@ export default {
             this.changeLotteryStatus(false);
           }
         });
-      } else {
+      } else if (diff > 0) {
         diff = diff / 1000;
         var diffH = Math.floor(diff / 3600);
         var diffM = Math.floor((diff - 3600 * diffH) / 60);
         var diffS = Math.floor(diff - diffH * 3600 - diffM * 60);
-        this.remainTime = `${diffH}Hours ${diffM}Minutes ${diffS}Seconds`;
+        this.remainTime = `${diffH} Hours ${diffM} Minutes ${diffS} Seconds`;
         this.currentTime = currentDate;
       }
     },
