@@ -82,7 +82,6 @@
             </template>
             <template #cell(play)="data">
               <router-link
-                 v-if="data.item.live || data.item.manager=='MANAGE'"
                 :to="{
                   name: 'Lottery',
                   params: {lotteryAddress: lotteries[data.index]}
@@ -191,21 +190,21 @@ export default {
         new_lottery.fee = result + '%';
       });
       Lottery.methods.getPlayers().call().then((result) => {
-        if (result.length == 0 || result.length == 1) {
-          new_lottery.participants = result.length.toString() + ' participant';
-        } else {
-          new_lottery.participants = result.length.toString() + ' participants';
-        }
-      });
-      Lottery.methods.manager().call().then(result => {
-        if (result == this.accounts[0]) {
-          new_lottery.manager = "MANAGE";
-        } else {
-          new_lottery.manager = "PLAY";
-        }
+        new_lottery.participants = result.length;
       });
       Lottery.methods.isLotteryLive().call().then((result) => {
         new_lottery.live = result;
+      });
+      Lottery.methods.manager().call().then(result => {
+        if (new_lottery.live) {
+          if (result == this.accounts[0]) {
+            new_lottery.manager = "MANAGE";
+          } else {
+            new_lottery.manager = "PLAY";
+          }
+        } else {
+          new_lottery.manager = "VIEW";
+        }
       });
       this.lotteryData.push(new_lottery);
     }

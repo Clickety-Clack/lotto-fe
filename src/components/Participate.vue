@@ -16,7 +16,7 @@
                 required>
             </div>
             <div class="form-group">
-              <label for="tickets">How many tickets want you to buy?</label>
+              <label for="tickets">Tickets to Buy</label>
               <input
                 type="number"
                 class="form-control"

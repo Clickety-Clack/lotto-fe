@@ -96,9 +96,9 @@ export default {
   color: #2c3e50;
   background-color: #333333;
   min-height: 100vh;
-  background: linear-gradient(217deg, rgba(20,0,0,.9), rgba(255,0,0,0) 93.71%),
-              linear-gradient(127deg, rgba(0,20,0,.9), rgba(0,255,0,0) 93.71%),
-              linear-gradient(336deg, rgba(0,0,20,.9), rgba(0,0,255,0) 93.71%);
+  background: linear-gradient(217deg, rgba(20,0,150,.9), rgba(250, 50, 150, 0.3) 93.71%),
+              linear-gradient(127deg, rgba(255, 2, 179, 0.9), rgba(0,255,0,0) 93.71%),
+              linear-gradient(336deg, rgba(17, 0, 241, 0.9), rgba(0,0,255,0) 93.71%);
 }
 
 .voffset {
