@@ -2,9 +2,9 @@
   <div class="row">
     <div class="col-md-12">
       <div class="card bg-dark text-white">
-        <h5 class="card-header">Buy Ticket&nbsp;({{coinsRequired}}&nbsp;SHFT)</h5>
+        <h5 class="card-header">Buy Ticket ({{currentWinningPrice}} SHFT current pot)</h5>
         <div class="card-body">
-          <p>Current winning price: {{currentWinningPrice}} SHFT</p>
+          <p>Name</p>
           <form @submit.prevent="participate">
             <div class="form-group">
               <input
@@ -16,7 +16,7 @@
                 required>
             </div>
             <div class="form-group">
-              <label for="tickets">Tickets to Buy</label>
+              <label for="tickets">Tickets to Buy&nbsp;({{coinsRequired}}&nbsp;SHFT each)</label>
               <input
                 type="number"
                 class="form-control"

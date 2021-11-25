@@ -2,14 +2,14 @@
   <div id="app">
     <!-- <app-header class="header"></app-header> -->
     <div v-if="!isMetaMaskPresent" class="alert alert-danger err-msg" role="alert">
-      Meta mask is not detected
+      Please install the MetaMask extension to continue
       <a href="https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en-US" target="_blank">
-        <button class="metamask-button">Add Metamaks</button>
+        <button class="metamask-button">Install MetaMask</button>
       </a>
     </div>
     <div v-else-if="!isMetaMaskLoggedin" class="alert alert-danger err-msg" role="alert">
-      Please log into Metamask
-      <button @click="handleLoginMetamask" class="metamask-button">Login Metamask</button>
+      Please log into MetaMask
+      <button @click="handleLoginMetamask" class="metamask-button">Log in</button>
     </div>
     <div v-if="isMetaMaskPresent && isMetaMaskLoggedin" class="container p-3" style="min-height: 70vh">
       <router-view/>
